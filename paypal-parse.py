@@ -10,7 +10,10 @@ locale.setlocale(locale.LC_ALL, 'Dutch')
 gb_kruis = 1292
 gb_kosten = 5561
 
-with open('PayPal 2015-04.csv') as csvfile:
+
+omrekeningen = {}
+
+with open('PayPal 2015-07-tot-29e.csv') as csvfile:
     with open('output.csv', 'wb') as output:
         writer = csv.writer(output, delimiter=',',quoting=csv.QUOTE_ALL)
         header = [h.lstrip() for h in csvfile.next().split(',')]
@@ -22,16 +25,33 @@ with open('PayPal 2015-04.csv') as csvfile:
             omschrijving = omschrijving[:60]
             opmerking = opmerking[:60]
             common = [row['Datum'], opmerking , omschrijving]
-
             bruto = locale.atof(row['Bruto'])
             fee = locale.atof(row['Kosten'])
             netto = locale.atof(row['Netto'])
 
-            if factuur_nummer.startswith("10000") and bruto > 0 or row['Valuta'] != 'EUR':
+            if factuur_nummer.startswith("10000") and bruto > 0:
                 print "skipping :", common
                 continue # skip ontvangen webshop betalingen
+            if row['Valuta'] != 'EUR':
+                reader2 = reader
+                if fee != 0:
+                    print "ERROR: vreemde valuta met fee niet nul"
+                    exit(1)
+                for row2 in reader2:
+                    if row['Transactiereferentie'] == row2['Ref.-id transactie'] and row2['Valuta'] == 'EUR':
+                        # euro bedrag gevonden
+                        bruto2 = locale.atof(row2['Bruto'])
+                        fee2 = locale.atof(row2['Kosten'])
+                        if fee2 != 0:
+                            print "ERROR: vreemde valuta met fee niet nul"
+                            exit(1)
+                        break
+                omschrijving = omschrijving + " ({0} {1})".format(bruto, row['Valuta'])
+                bruto = bruto2
+                common = [row['Datum'], opmerking , omschrijving]
+
+
 
             writer.writerow(common + [bruto, gb_kruis])
-
             if fee != 0:
                 writer.writerow(common + [fee, gb_kosten])
