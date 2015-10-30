@@ -13,8 +13,11 @@ gb_kosten = 5561
 
 omrekeningen = {}
 
-with open('PayPal 2015-07-tot-29e.csv') as csvfile:
-    with open('output.csv', 'wb') as output:
+input = 'PayPal transacties 2015-09.csv'
+output = input.rstrip(".csv") + "-exact-import.csv"
+
+with open(input) as csvfile:
+    with open(output, 'wb', encoding='utf-8') as output:
         writer = csv.writer(output, delimiter=',',quoting=csv.QUOTE_ALL)
         header = [h.lstrip() for h in csvfile.next().split(',')]
         reader = csv.DictReader(csvfile, fieldnames=header)
@@ -29,10 +32,11 @@ with open('PayPal 2015-07-tot-29e.csv') as csvfile:
             fee = locale.atof(row['Kosten'])
             netto = locale.atof(row['Netto'])
 
-            if factuur_nummer.startswith("10000") and bruto > 0:
-                print "skipping :", common
-                continue # skip ontvangen webshop betalingen
+            # if factuur_nummer.startswith("10000") and bruto > 0:
+            #    print "skipping :", common
+            #    continue # skip ontvangen webshop betalingen
             if row['Valuta'] != 'EUR':
+                bruto2 = None
                 reader2 = reader
                 if fee != 0:
                     print "ERROR: vreemde valuta met fee niet nul"
@@ -49,6 +53,9 @@ with open('PayPal 2015-07-tot-29e.csv') as csvfile:
                 omschrijving = omschrijving + " ({0} {1})".format(bruto, row['Valuta'])
                 bruto = bruto2
                 common = [row['Datum'], opmerking , omschrijving]
+                if bruto2 is None:
+                    print "Probleem met row1 " + row + "en row2 " + row2
+                    continue
 
 
 
