@@ -1,4 +1,4 @@
-import csv
+import unicodecsv as csv
 from pprint import pprint
 import locale
 #locale._print_locale()
@@ -17,7 +17,7 @@ input = 'PayPal transacties 2015-09.csv'
 output = input.rstrip(".csv") + "-exact-import.csv"
 
 with open(input) as csvfile:
-    with open(output, 'wb', encoding='utf-8') as output:
+    with open(output, 'wb') as output:
         writer = csv.writer(output, delimiter=',',quoting=csv.QUOTE_ALL)
         header = [h.lstrip() for h in csvfile.next().split(',')]
         reader = csv.DictReader(csvfile, fieldnames=header)
