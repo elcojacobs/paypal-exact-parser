@@ -13,6 +13,7 @@ locale.setlocale(locale.LC_ALL, 'Dutch')
 gb_kruis = 1292
 gb_kosten = 5561
 
+# note: add counter to start a new file every 50 transactions, so Exact Online does not time out.
 
 omrekeningen = {}
 
@@ -21,14 +22,14 @@ output = input.rstrip(".csv") + "-exact-import.csv"
 csvfilecopy = open(input, encoding='utf8')
 
 with open(input, encoding='utf8') as csvfile:
-    with open(output, 'w', newline='', encoding='cp1252') as output:
+    with open(output, 'w', newline='', encoding='iso-8859-1') as output:
         writer = csv.writer(output, delimiter=',',quoting=csv.QUOTE_ALL)
         headerline = csvfile.readline()
         header = [h.lstrip() for h in headerline.split(',')]
         reader = csv.DictReader(csvfile, fieldnames=header)
         for row in reader:
             for key, value in row.items():
-                row[key] = value.encode('cp1252', 'replace').decode('cp1252') # replace characters that are not available in cp1252
+                row[key] = value.encode('iso-8859-1', 'ignore').decode('iso-8859-1') # replace characters that are not available in cp1252
             factuur_nummer = row['Factuurnummer']
             omschrijving = row['Naam'] + ' ' + factuur_nummer + ' ' + row['Type']
             opmerking = row['Transactiereferentie'] + ' ' + omschrijving
