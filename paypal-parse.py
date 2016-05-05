@@ -16,16 +16,19 @@ gb_kosten = 5561
 
 omrekeningen = {}
 
-input = 'PayPal 2016-01.csv'
+input = 'PayPal 2016-03.csv'
 output = input.rstrip(".csv") + "-exact-import.csv"
+csvfilecopy = open(input, encoding='utf8')
 
-with open(input) as csvfile:
-    with open(output, 'w', newline='') as output:
+with open(input, encoding='utf8') as csvfile:
+    with open(output, 'w', newline='', encoding='cp1252') as output:
         writer = csv.writer(output, delimiter=',',quoting=csv.QUOTE_ALL)
         headerline = csvfile.readline()
         header = [h.lstrip() for h in headerline.split(',')]
         reader = csv.DictReader(csvfile, fieldnames=header)
         for row in reader:
+            for key, value in row.items():
+                row[key] = value.encode('cp1252', 'replace').decode('cp1252') # replace characters that are not available in cp1252
             factuur_nummer = row['Factuurnummer']
             omschrijving = row['Naam'] + ' ' + factuur_nummer + ' ' + row['Type']
             opmerking = row['Transactiereferentie'] + ' ' + omschrijving
@@ -41,12 +44,15 @@ with open(input) as csvfile:
             #    continue # skip ontvangen webshop betalingen
             if row['Valuta'] != 'EUR':
                 bruto2 = None
-                reader2 = reader
+                csvfilecopy.seek(0)
+                reader2 = csv.DictReader(csvfilecopy, fieldnames=header)
+                row2 = None
                 if fee != 0:
                     print("ERROR: vreemde valuta met fee niet nul")
                     exit(1)
                 for row2 in reader2:
-                    if row['Transactiereferentie'] == row2['Ref.-id transactie'] and row2['Valuta'] == 'EUR':
+                    if (row['Transactiereferentie'] == row2['Ref.-id transactie'] or row['Ref.-id transactie'] == row2['Ref.-id transactie']) \
+                            and row2['Valuta'] == 'EUR' and row['Tijd'] == row2['Tijd']:
                         # euro bedrag gevonden
                         bruto2 = locale.atof(row2['Bruto'])
                         fee2 = locale.atof(row2['Kosten'])
@@ -59,11 +65,16 @@ with open(input) as csvfile:
                 bruto = bruto2
                 common = [row['Datum'], opmerking , omschrijving]
                 if bruto2 is None:
-                    print("Probleem met row1 " + row + "en row2 " + row2)
+                    print("Probleem met row1 " + str(row) + "en row2 " + str(row2))
                     continue
 
+            if 'Omrekening' in row['Type']:
+                continue
 
-
-            writer.writerow(common + [bruto, gb_kruis])
+            csvline = common + [bruto, gb_kruis]
+            # print(csvline)
+            writer.writerow(csvline)
             if fee != 0:
-                writer.writerow(common + [fee, gb_kosten])
+                csvline = common + [fee, gb_kosten]
+                # print(csvline)
+                writer.writerow(csvline)
