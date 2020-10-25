@@ -1,11 +1,12 @@
 import csv
-#locale._print_locale()
-
 #locale.setlocale(locale.LC_ALL, 'nl_NL')
 #locale.setlocale(locale.LC_ALL, '')
 #print(locale.getdefaultlocale(locale.LC_ALL))
 #print(locale.locale_alias)
 import time
+
+#locale._print_locale()
+
 
 # gb_bank = 1110
 gb_kruis = 1292
@@ -15,8 +16,8 @@ gb_kosten = 5561
 
 omrekeningen = {}
 
-previous_authorizations = 'C:/Users/Elco/Dropbox/BrewPi/Administratie/PayPal/2019/2019-03-08_2019-04-29.CSV'
-input = 'C:/Users/Elco/Dropbox/BrewPi/Administratie/PayPal/2019/2019-04-29_2019-07-04.CSV'
+previous_authorizations = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2020/2020_05_11-2020_07_28.CSV'
+input = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2020/2020_07_28-2020_09_03.CSV'
 output = input.rstrip(".csv") + "-exact-import.csv"
 csvfilecopy = open(input, encoding='utf-8-sig')
 
@@ -68,11 +69,11 @@ with open(input, encoding='utf-8-sig') as csvfile:
             if code == 'T1300' or code == 'T1301': # authorization or re-authorization
                 authorized[referentie] = factuur_nummer
 
-            if code == 'T0006': # express checkout API
+            if code == 'T0006' and bruto > 0: # express checkout API of sale
                 if not factuur_nummer:
                     if kruisreferentie: # recover invoice number from authorization
                         print(row)
-                    factuur_nummer = authorized[kruisreferentie]
+                        factuur_nummer = authorized[kruisreferentie]
 
             if row['Balance Impact'] == 'Memo':
                 continue # skip transactions not affecting balance
@@ -146,4 +147,3 @@ with open(input, encoding='utf-8-sig') as csvfile:
 
 print("Total gross: ", total_gross)
 print("Total net: ", total_net)
-print("Total fee: ", total_fee)
