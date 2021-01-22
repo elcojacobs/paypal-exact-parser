@@ -12,12 +12,15 @@ import time
 gb_kruis = 1292
 gb_kosten = 5561
 
+dec_sep = ","
+thousands_sep = "."
+
 # note: add counter to start a new file every 50 transactions, so Exact Online does not time out.
 
 omrekeningen = {}
 
-previous_authorizations = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2020/2020_05_11-2020_07_28.CSV'
-input = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2020/2020_07_28-2020_09_03.CSV'
+previous_authorizations = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2020/2020_09_03-2020_10_25.CSV'
+input = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2020/2020_10_26-2021_01_19.CSV'
 output = input.rstrip(".csv") + "-exact-import.csv"
 csvfilecopy = open(input, encoding='utf-8-sig')
 
@@ -56,11 +59,9 @@ with open(input, encoding='utf-8-sig') as csvfile:
             factuur_nummer = row['Invoice Number']
             referentie = row['Transaction ID']
             kruisreferentie = row['Reference Txn ID']
-            dec_sep = "."
-            thousands_sep = ","
             bruto = float(row['Gross'].replace(thousands_sep,"").replace(dec_sep,"."))
             fee = float(row['Fee'].replace(thousands_sep,"").replace(dec_sep,"."))
-            netto = float(row['Net'].replace(',',"").replace(',',"."))
+            netto = float(row['Net'].replace(thousands_sep,"").replace(dec_sep,"."))
             code = row["Transaction Event Code"]
             date = time.strptime(row['Date'], '%d/%m/%Y')
             datestr = time.strftime("%d-%m-%Y", date)
@@ -101,8 +102,6 @@ with open(input, encoding='utf-8-sig') as csvfile:
                     if (row['Transaction ID'] == row2['Reference Txn ID'] or row['Reference Txn ID'] == row2['Reference Txn ID']) \
                             and row2['Currency'] == 'EUR' and row['Time'] == row2['Time']:
                         # euro bedrag gevonden
-                        dec_sep = "."
-                        thousands_sep = ","
                         bruto2 = float(row2['Gross'].replace(thousands_sep,"").replace(dec_sep,"."))
                         fee2 = float(row2['Fee'].replace(thousands_sep,"").replace(dec_sep,"."))
                         print("Vreemde valuta conversie: ", common, bruto, bruto2, fee, fee2)
