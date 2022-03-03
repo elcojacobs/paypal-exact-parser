@@ -19,8 +19,8 @@ thousands_sep = "."
 
 omrekeningen = {}
 
-previous_authorizations = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2020/2020_09_03-2020_10_25.CSV'
-input = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2020/2020_10_26-2021_01_19.CSV'
+previous_authorizations = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2022/2022-01-14_2022-01-31.CSV'
+input = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2022/2022-01-31_2022-03_03.CSV'
 output = input.rstrip(".csv") + "-exact-import.csv"
 csvfilecopy = open(input, encoding='utf-8-sig')
 
@@ -100,7 +100,7 @@ with open(input, encoding='utf-8-sig') as csvfile:
 
                 for row2 in reader2:
                     if (row['Transaction ID'] == row2['Reference Txn ID'] or row['Reference Txn ID'] == row2['Reference Txn ID']) \
-                            and row2['Currency'] == 'EUR' and row['Time'] == row2['Time']:
+                            and row2['Currency'] == 'EUR' and row['Time'] == row2['Time'] and row2['Transaction Event Code'] == 'T0200':
                         # euro bedrag gevonden
                         bruto2 = float(row2['Gross'].replace(thousands_sep, "").replace(dec_sep, "."))
                         fee2 = float(row2['Fee'].replace(thousands_sep, "").replace(dec_sep, "."))
