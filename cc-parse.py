@@ -2,7 +2,7 @@ import csv
 
 gb_cc = 1294
 
-input = '/home/elco/Downloads/CSV_CC_20210426_131441.csv'
+input = '/home/elco/Downloads/CSV_CC_1054_20241025_20250129.csv'
 output = input.rstrip(".csv") + "-exact-import.csv"
 
 with open(input, encoding='utf-8-sig') as csvfile:

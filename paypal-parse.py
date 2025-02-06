@@ -19,9 +19,9 @@ thousands_sep = "."
 
 omrekeningen = {}
 
-previous_authorizations = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2022/2022-01-14_2022-01-31.CSV'
-input = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2022/2022-01-31_2022-03_03.CSV'
-output = input.rstrip(".csv") + "-exact-import.csv"
+previous_authorizations = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2024/2024-07-20-2024-10-30.CSV'
+input = '/home/elco/Dropbox/BrewPi/Administratie/PayPal/2024/2024-10-30-2025-01-30.CSV'
+output = input.rstrip(".csv") + "-exact-import2.csv"
 csvfilecopy = open(input, encoding='utf-8-sig')
 
 authorized = {}
@@ -57,6 +57,8 @@ with open(input, encoding='utf-8-sig') as csvfile:
                 row[key] = value.encode('iso-8859-1', 'ignore').decode('iso-8859-1')  # replace characters that are not available in cp1252
 
             factuur_nummer = row['Invoice Number']
+            if factuur_nummer == '':
+                factuur_nummer = row['Subject']
             referentie = row['Transaction ID']
             kruisreferentie = row['Reference Txn ID']
             bruto = float(row['Gross'].replace(thousands_sep, "").replace(dec_sep, "."))
@@ -66,7 +68,6 @@ with open(input, encoding='utf-8-sig') as csvfile:
             date = time.strptime(row['Date'], '%d/%m/%Y')
             datestr = time.strftime("%d-%m-%Y", date)
 
-            print(code)
             if code == 'T1300' or code == 'T1301':  # authorization or re-authorization
                 authorized[referentie] = factuur_nummer
 
@@ -79,7 +80,7 @@ with open(input, encoding='utf-8-sig') as csvfile:
             if row['Balance Impact'] == 'Memo':
                 continue  # skip transactions not affecting balance
 
-            omschrijving = row['Name'] + ' ' + factuur_nummer + ' ' + row['Type']
+            omschrijving = f'{factuur_nummer} {row['Name']} {row['Type']}'
             omschrijving = omschrijving[:60]
             opmerking = referentie + ' ' + omschrijving
             opmerking = opmerking[:60]
